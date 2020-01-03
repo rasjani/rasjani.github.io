@@ -1,14 +1,25 @@
 title: rasjani @ github.io
+email: jani.mikkonen@gmail.com
 description: code - do we need something else?
+url: https://rasjani.github.io
+linkedin_username: jani.mikkonen
 google_analytics: 
-show_downloads: false
-theme: jekyll-theme-hacker
-
-gems:
+plugins:
   - jekyll-mentions
   - jekyll-gist
   - jekyll-github-metadata
   - jekyll-optional-front-matter
   - jekyll-titles-from-headings
   - jekyll-relative-links
+markdown: kramdown
+highlighter: rouge
+paginate: 15
+paginate_path: "/blog/page:num/"
+repository: rasjani/rasjani.github.io
+collections:
+  projects:
+    output: true
+    permalink: /projects/:path/
 
+
+ 
