@@ -5,6 +5,8 @@ url: https://rasjani.github.io
 linkedin_username: mikkonenjani
 github_username:  rasjani
 google_analytics: 
+paginate: 5
+paginate_path: "/blog/page:num/"
 plugins:
   - jekyll-mentions
   - jekyll-gist
