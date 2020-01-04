@@ -1,5 +1,7 @@
 ---
 layout: default
+title: index
+
 ---
 
 ### Welcome to GitHub Pages.
