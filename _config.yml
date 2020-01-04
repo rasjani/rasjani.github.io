@@ -11,6 +11,7 @@ plugins:
   - jekyll-github-metadata
   - jekyll-optional-front-matter
   - jekyll-relative-links
+  - jekyll-paginate
 markdown: kramdown
 highlighter: rouge
 paginate: 15
