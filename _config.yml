@@ -3,7 +3,8 @@ email: jani.mikkonen@gmail.com
 description: code - do we need something else?
 url: https://rasjani.github.io
 theme: jekyll-theme-hacker
-linkedin_username: jani.mikkonen
+linkedin_username: mikkonenjani
+github_username:  rasjani
 google_analytics: 
 plugins:
   - jekyll-mentions
