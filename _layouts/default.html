@@ -8,9 +8,6 @@
         {{ content }}
       </section>
     </div>
-    layout: {{ layout }}    
-    {% if layout == "post" %}
-        {% include pagination.html %}
-    {% endif %}
+    {% include pagination.html %}
   </body>
 </html>
