@@ -21,7 +21,7 @@ command will output something like this:
 
 ```
 # 1920x1080 59.96 Hz (CVT 2.07M9) hsync: 67.16 kHz; pclk: 173.00 MHz  
-Modeline “1920x1080\_60.00” 173.00 1920 2048 2248 2576 1080 1083 1088 1120 -hsync +vsync
+Modeline “1920x1080_60.00” 173.00 1920 2048 2248 2576 1080 1083 1088 1120 -hsync +vsync
 ```
 
 The interesting line in that is the row that starts with Modeline. Next, open/create a file /usr/share/X11/xorg.conf.d/10-monitor.conf and copy paste following into it (replace everything if you have something in there). Do note that this file can only be edited as root.

@@ -24,7 +24,7 @@ After going through the checkout, it's painfully obvious: if you know the codeba
 
 Let's stop here and think. We have established that we have a version that works, and newer version that does not. If we know what the piece of code was that caused the failures, we have a good starting point to actually fixing these errors.
 
-We have the source but how can we use this particular git repo as part of the debugging process as it's just a repo and we need it as proper dependency inside our main project's node\_modules? The answer relies on npm itself; with npm link you can mark any git repository as a provider for the package defined in the original repo's package.json file.
+We have the source but how can we use this particular git repo as part of the debugging process as it's just a repo and we need it as proper dependency inside our main project's `node_modules`? The answer relies on npm itself; with npm link you can mark any git repository as a provider for the package defined in the original repo's package.json file.
 
 ```bash
 cd jasmine  
@@ -37,11 +37,11 @@ Then, in my main project's code which has the failing tests, I can do following:
 npm install jasmine-core
 ```
 
-If the jasmine-core is linked as I did earlier on, `node\_modules/jasmine-core` is actually now a symlink to my git clone.
+If the jasmine-core is linked as I did earlier on, `node_modules/jasmine-core` is actually now a symlink to my git clone.
 
 Almost there!
 
-If I now do a checkout against specific commit in this particular repository, any changes to the tree will be mirrored automatically to `node\_modules/jasmine-core` of my main project. If there's only few commits, iterating through all of them can be done manually but if you are facing hundreds of commits, we are going to need some automation.
+If I now do a checkout against specific commit in this particular repository, any changes to the tree will be mirrored automatically to `node_modules/jasmine-core` of my main project. If there's only few commits, iterating through all of them can be done manually but if you are facing hundreds of commits, we are going to need some automation.
 
 Enter [git bisect](http://git-scm.com/docs/git-bisect "Git Bisect")!
 
@@ -106,9 +106,9 @@ In my case, I could have come up with something like this:
 janimikkonen@RASJani ~/src/js/jasmine (master)$ cat ./runMyTests.sh  
 cd ../myapp/  
 grunt karma:unit  
-STATUS\_FROM\_UNITTESTS=$?  
+STATUS_FROM_UNITTESTS=$?  
 cd ../jasmine/  
-exit $STATUS\_FROM\_UNITTESTS  
+exit $STATUS_FROM_UNITTESTS  
 janimikkonen@RASJani ~/src/js/jasmine (master)$
 ```
 
@@ -118,5 +118,5 @@ Quick explanation what is happening here. If I execute:
 git bisect run ./runMyTests.sh 
 ```
 
-My script will first change the working directory to ../myapp/, then it will run my karma tests (where we had the regression). Shell exitcode is then saved to STATUS\_FROM\_UNITTESTS right after grunt has executed the tests, return back to original directory and exit the script with same status as grunt exited from testrun.
+My script will first change the working directory to ../myapp/, then it will run my karma tests (where we had the regression). Shell exitcode is then saved to `STATUS_FROM_UNITTESTS` right after grunt has executed the tests, return back to original directory and exit the script with same status as grunt exited from testrun.
 

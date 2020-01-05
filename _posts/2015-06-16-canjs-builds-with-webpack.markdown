@@ -22,14 +22,14 @@ So, that was a few good days "well spend". But yeah, i got to learn a lot about 
 
 Since webpack uses CommonJS format , we can just install CanJS package with it along with webpack itself:
 
-npm install --save-dev can webpackIn typical webpack build, one usually has `node\_modules` resolve.modulesDirectories along with other paths and require() just finds the packages there. But as i pointed out earlier, CanJS uses steal by default and this won't make the webpack work yet. But since we already know that there is also a cjs module being part of npm package, we can add that folder with higher priority above `node\_modules``. Like this:
+npm install --save-dev can webpackIn typical webpack build, one usually has `node_modules` resolve.modulesDirectories along with other paths and require() just finds the packages there. But as i pointed out earlier, CanJS uses steal by default and this won't make the webpack work yet. But since we already know that there is also a cjs module being part of npm package, we can add that folder with higher priority above `node_modules``. Like this:
 
 ```javascript
 resolve: {  
  modulesDirectories: [  
  'src',  
- 'node\_modules/can/dist/cjs/',  
- 'node\_modules',  
+ 'node_modules/can/dist/cjs/',  
+ 'node_modules',  
  ],  
  extensions: ['', '.js']  
 }
@@ -89,6 +89,6 @@ I've prepared a fully working "boiler-plate" that utilizes the examples given he
 
 Grunt, Less, CanJS, Webpack & Mustache
 
-Check it out here: [https://github.com/rasjani/canjs\_webpack](https://github.com/rasjani/canjs_webpack)
+Check it out here: [https://github.com/rasjani/canjs_webpack](https://github.com/rasjani/canjs_webpack)
 
   
