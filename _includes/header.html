@@ -1,15 +1,13 @@
     <header>
       <div class="container">
         <a id="a-title" href="{{ '/' | relative_url }}">
-          <h1>{{ site.title | default: site.github.repository_name }} {% if page.title != "index" %} / {{ page.title }}{% endif %}</h1>
+          <h1>{{ site.title | default: site.github.repository_name }} {% if page.title != "main" %} / {{ page.title }}{% endif %}</h1>
         </a>
         <h2>{{ site.description | default: site.github.project_tagline }}</h2>
       </div>
       <div class="container">
-        {% for page in site.pages %}
-          {% if page.title != "index" %}
-          <a class="page-link" href="{{ page.url | prepend: site.baseurl }}" title="{{ page.description }}">{{ page.title }}</a>
-          {% endif %}
+        {% for entry in site.data.menu %}
+          <a class="page-link" href="{{ entry.url | prepend: site.baseurl }}" title="{{ entry.description }}">{{ entry.title }}</a>
         {% endfor %}
       </div>
     </header>

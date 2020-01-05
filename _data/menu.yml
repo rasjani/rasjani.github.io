@@ -1,0 +1,9 @@
+- title: main
+  url: /
+  description: 
+- title: about
+  url: /about
+  description: contact details and some background
+- title: projects
+  url: /projects
+  description: stuff that we have been working on
