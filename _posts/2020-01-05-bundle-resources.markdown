@@ -11,14 +11,14 @@ So there has been people in rf slack channels asking about the possibility to sh
 alternative. But consider the scenario where you have a helpful keyword library written as `yourlib.resource`. This file may reside in another repository but it would be nice to get that available for
 ci or development environment automatically ? If your test libraries where written in python, this would be rather easy. Just whip up pip, install the package and import it into your testsuite with 
 
-```robotframework
+```robot
 Library   YourPackage
 ```
 
 But when your package only consists only of robot resources, you can't just import those without some hurdles. Now, there is [Import
 Resource](https://robotframework.org/robotframework/latest/libraries/BuiltIn.html#Import%20Resource) - keyword that you could use to load resource files like this: 
 
-```robotframework
+```robot
 *** Test Cases ***
 Importing mylib.resource 
   Import Resource   mylib.resource
@@ -76,7 +76,7 @@ import_resource().
 Finally, lets see how this would look in the robot side of things:
 
 
-```robotframework
+```robot
 *** Settings ***
 Documentation   Verifies ImportResource Functionality
 Library         ImportResource  resources=importresource-testdata
