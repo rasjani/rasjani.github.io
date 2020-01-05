@@ -70,7 +70,7 @@ module: {
  }  
  ]  
 }
-```javascript
+```
 And with that, you can just use require() to load your mustache templates and use those with canjs like this:
 
 ```javascript
