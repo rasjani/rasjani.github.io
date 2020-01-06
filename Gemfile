@@ -12,4 +12,6 @@ group :jekyll_plugins do
   gem 'jekyll-default-layout'
   gem 'jekyll-target-blank'
   gem 'jekyll-relative-links'
+  gem 'jekyll-email-protect'
+  gem 'jekyll-feed'
 end

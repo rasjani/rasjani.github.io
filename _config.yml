@@ -16,6 +16,8 @@ plugins:
   - jekyll-optional-front-matter
   - jekyll-relative-links
   - jekyll-paginate
+  - jekyll-email-protect
+  - jekyll-feed
 markdown: kramdown
 highlighter: rouge
 repository: rasjani/rasjani.github.io
@@ -23,6 +25,3 @@ collections:
   projects:
     output: true
     permalink: /projects/:path/
-
-
- 
