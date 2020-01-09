@@ -48,7 +48,7 @@ header {
   background:
         linear-gradient(
           rgba(0, 0, 0, 0.7),
-          rgba(0, 0, 0, 0.10)
+          rgba(0, 0, 0, 0.9)
         ),
         url("/assets/images/headerbackground.jpg");
   width: 100%;
@@ -79,7 +79,7 @@ header h1:before {
 header h2 {
   font-size: 18px;
   font-weight: 300;
-  color: #666;
+  color: white;
 }
 
 #downloads .btn {
