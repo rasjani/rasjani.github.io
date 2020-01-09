@@ -45,9 +45,14 @@ li {
 */
 
 header {
-  background: rgba(0, 0, 0, 0.1);
+  background:
+        linear-gradient(
+          rgba(0, 0, 0, 0.7),
+          rgba(0, 0, 0, 0.10)
+        ),
+        url("/images/headerbackground.jpg");
   width: 100%;
-  border-bottom: 1px dashed $conifer; //header;
+  border-bottom: 1px dashed $conifer; 
   padding: 20px 0;
   margin: 0 0 40px 0;
 }
