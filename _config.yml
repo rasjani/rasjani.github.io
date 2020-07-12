@@ -14,6 +14,7 @@ name: rasjani @ github.io
 description: code - do we need something else?
 url: https://rasjani.github.io
 feed:
+  path: feed.xml
   posts_limit: 10000
   tags: true
 alugins:
