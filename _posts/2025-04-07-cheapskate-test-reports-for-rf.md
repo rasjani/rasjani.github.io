@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Cheapskate test reporting for Robot Framework
-date: 2025-04-08 12:00:00
+date: 2025-04-07 12:00:00
 description: Test reporting for free with robotframework-dashboard
 tags: [robotframework, qa, reporting, python, github, github-actions, dashboard]
 
