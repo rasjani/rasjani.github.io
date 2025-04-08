@@ -27,8 +27,8 @@ I solved this by generating a new file that i will store along the output.xml as
       run: |
         # irrelevant stuff removed
         mkdir -p reports
-        echo  export BROWSER=${{ inputs.DEFAULT_BROWSER }} > reports/env.sh
-        echo  export ENVIRONMENT=${{ inputs.TEST_ENV }} >> reports/env.sh
+        {% raw %}echo  export BROWSER=${{ inputs.DEFAULT_BROWSER }} > reports/env.sh
+        echo  export ENVIRONMENT=${{ inputs.TEST_ENV }} >> reports/env.sh{% endraw %}
 ```
 
 In this part, I'm storing the 2 arguments from workflow into separate shell script.
@@ -65,7 +65,7 @@ jobs:
   process-artifact:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: {% raw %} ${{ steps.deployment.outputs.page_url }} {% endraw %}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -116,8 +116,8 @@ Next step in  workflow is to get the data:
       with:
         name: dashboarddata
         path: output/
-        run-id: ${{ github.event.workflow_run.id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        run-id: $\{\{ github.event.workflow_run.id \}\}
+        github-token: $\{\{ secrets.GITHUB_TOKEN \}\}
 ```
 
 On this stage, passing `run-id` as that gives a correct "upstream" workflow id where we are downloading `dashboarddata` artifact from. The `path` is where the artifact will be downloaded to and `github-token` is needed to access the artifacts if the repository is private. And now we have both, output.xml and env.sh available for processing.
