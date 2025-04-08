@@ -10,8 +10,8 @@ group :jekyll_plugins do
   gem 'jekyll-titles-from-headings'
   gem 'jekyll-optional-front-matter'
   gem 'jekyll-default-layout'
-  gem 'jekyll-target-blank'
+#  gem 'jekyll-target-blank'
   gem 'jekyll-relative-links'
-  gem 'jekyll-email-protect'
+#  gem 'jekyll-email-protect'
   gem 'jekyll-feed'
 end
