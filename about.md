@@ -16,5 +16,3 @@ Jani Mikkonen is software engineer currently working in [NorthCodeLTD](https://w
 * [GitHub](https://github.com/{{ site.github_username }})
 * [LinkedIn](https://www.linkedin.com/in/{{ site.linkedin_username}})
 * [StackOverflow](https://stackoverflow.com/users/{{ site.stackoverflow_id }})
-* [Mastodon]({{ site.mastodon_url }}) / {{ site.mastodon_username }}
-* [Twitter](https://twitter.com/{{ site.twitter_username }})
