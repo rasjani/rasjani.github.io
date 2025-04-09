@@ -6,172 +6,167 @@ description: Test reporting for free with robotframework-dashboard
 tags: [robotframework, qa, reporting, python, github, github-actions, dashboard]
 
 ---
-I've been working for a client for past year and there hasn't been a decent test reporting services offered so some time ago I took a look at [robotframework-dashboard](https://github.com/timdegroot1996/robotframework-dashboard) as it seemed to tick most of my itches for getting statistics from my test runs.
 
-My starting point; I run my test assets against 3 different environments: dev, uat & staging with firefox *and* chromium. In order to generate meaningful historical statistics i would need to:
+### Cheapskate Test Reporting for Robot Framework
 
-* store output.xml for later processing
-* store the resulting database after output.xml is processed
-* have a backend to serve reports.
+I've been working with a client over the past year, and one persistent issue has been the lack of a decent test reporting solution. After some digging, I stumbled upon robotframework-dashboard, which seemed to tick all the boxes I needed for extracting meaningful test run statistics.
+#### My Setup
 
-As GitHub offeres "github-pages", eg a service where one can host static html's, my needed list of functionality boils down to how and at what stage i would process output.xml and where to store the resulting database?
+I run tests across three environments — dev, uat, and staging — using both Firefox and Chromium. To generate useful historical data, I needed to:
 
-Since robotframework-dashboard supports sqlite as its backend, storing that database within repository ain't an bad option. At least not until the size of the sqlite file gets big enough but for now, storing it in git is good "poc" solution.
+ * Store `output.xml` files for post-processing
+ * Retain the resulting database after processing
+ * Have a backend to serve reports
 
-At this point as I already had my initial test workflow collecting all the necessary information my intial thought would be to make a separate workflow that gets triggered after actual testruns. One gotcha here thought. As explained earlier, 6 test runs in total nightly so I needed 6 different sqlite files and the newly created workflow had to know the parameters that where used to trigger the test run so that output.xml could be processed correctly
+Since GitHub offers GitHub Pages for hosting static HTML content, the real question became: How and when should I process the `output.xml`, and where should I store the resulting database?
+#### A Simple Storage Solution
 
-I solved this by generating a new file that i will store along the output.xml as build artifact:
+Robotframework-dashboard supports SQLite, which made things simpler. I decided to store the SQLite database directly in the repo — not the most scalable option, but a solid proof-of-concept for now.
 
-```yaml
-    - name: Install Dependencies & Generate env data
-      run: |
-        # irrelevant stuff removed
-        mkdir -p reports
-        {% raw %}echo  export BROWSER=${{ inputs.DEFAULT_BROWSER }} > reports/env.sh
-        echo  export ENVIRONMENT=${{ inputs.TEST_ENV }} >> reports/env.sh{% endraw %}
-```
+With my test workflow already collecting the right artifacts, I designed a second GitHub Actions workflow triggered after test runs. Here's the catch: six total test runs happen nightly (3 environments × 2 browsers), so I needed six separate SQLite files. The dashboard workflow needed to know which environment/browser combo each artifact belonged to.
+#### Passing Parameters Between Workflows
 
-In this part, I'm storing the 2 arguments from workflow into separate shell script.
+I solved this by creating a simple shell script (env.sh) during the test run:
 
-And then store the needed files as artifacts that could be later processed.
+- name: Install Dependencies & Generate env data
+  run: |
+    {% raw %} mkdir -p reports
+    echo  export BROWSER=${{ inputs.DEFAULT_BROWSER }} > reports/env.sh
+    echo  export ENVIRONMENT=${{ inputs.TEST_ENV }} >> reports/env.sh {% endraw %}
 
-```yaml
-    - name: COLLECT - Dashboard data
-      uses: actions/upload-artifact@v4
-      with:
-        name: dashboarddata
-        path: |
-          reports/output.xml
-          reports/env.sh
-```
+This stores the test parameters for the dashboard processor.
 
-Both of these steps are part of the actual testrun workflow and are run in the same job as the tests. The next step is to create a new workflow that will be triggered after the testrun workflow has completed. This workflow will process the output.xml and generate and/or update the existing sqlite database.
+Then I uploaded both the test output and the environment metadata as artifacts:
 
-```yaml
+- name: COLLECT - Dashboard data
+  uses: actions/upload-artifact@v4
+  with:
+    name: dashboarddata
+    path: |
+      reports/output.xml
+      reports/env.sh
+
+#### Creating the Dashboard Workflow
+
+Now comes the second GitHub Actions workflow, which is triggered once the test workflows complete:
+
 name: Generate Dashboard
 on:
   workflow_run:
     workflows: ["Nightly / DEV / Chromium", "Nightly / DEV / Firefox", "Nightly / Staging / Chromium", "Nightly / Staging / Firefox", "Nightly / UAT / Chromium", "Nightly / UAT / Firefox"]
     types:
       - completed
-```
 
-This takes care of triggering. On `workflows:`, I listed all the jobs in my repository that will trigger this dashboard generation workflow.
+This ensures the dashboard updates after any of the nightly test runs.
+#### Setup and Permissions
 
-In order to access all required features i needed during dashboard generation workflow, following permissions and settings need to be setup at the start of the workflow:
+To generate and publish the dashboard, we need to configure permissions and environments:
 
 ```yaml
-jobs:
+{% raw %}jobs:
   process-artifact:
     environment:
       name: github-pages
-      url: {% raw %} ${{ steps.deployment.outputs.page_url }} {% endraw %}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
       pages: write
-      actions: read
-```
-Environment is set to github-pages and url is provided from github. URL will depend on  repository access like is it on enterprise or public github but essentially its provided automatically.  First 3 permissions are important as those allows the workflow to write to the repository and update the github-pages branch. `actions: read` is needed to access the artifacts *if* repository is private.
+      actions: read{% endraw %}
 
-Next step is to setup the workflow with actions dealing with pages:
+Next, configure the steps to check out the dashboard branch, set up Python, and install dependencies:
 
 ```yaml
-    steps:
-    - name: Setup Pages
-      uses: actions/configure-pages@v5
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for all branches and tags
-        ref: "refs/heads/dashboard"
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel
-        python -m pip install  robotframework-dashboard
+steps:
+  - name: Setup Pages
+    uses: actions/configure-pages@v5
+  - name: Checkout code
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+      ref: "refs/heads/dashboard"
+  - name: Set up Python 3.12
+    uses: actions/setup-python@v5
+    with:
+      python-version: "3.12"
+  - name: Install Dependencies
+    run: |
+      pip install --upgrade pip setuptools wheel
+      pip install robotframework-dashboard
 ```
-
-So, actions/configure-pages is the first step and should be self explanatory if you have dealt with github-pages before and then make sure there's working python and all the tools needed to process the output.xml and generate the sqlite database and pages. In this case, robotframework-dashboard is the only dependency needed.
-
-But what about actions/checkout ? Im pulling in a branch from the same repository with fetch-depth set to 0. Why? I want to store my sqlite db files in that branch so that I don't need deal with persistency of data *or* handling of actual dev/production branches getting random commits from dashboard generation.
-
-This `dashboard` branch was generated by creating "orphan" branch in the repository:
+I use a dedicated `dashboard` branch (created as an orphan branch) to isolate dashboard files from main/test branches:
 
 ```bash
 git checkout --orphan dashboard
 ```
 
-This creates a new branch with no history and no files. On this branch i added a single html (`site/index.html`) that has combobox that will show 1 of the 6 generated  html files from robotframework-dashboard within iframe and 6 empty sqlite database files.
+This branch contains a basic index.html and six empty SQLite files.
+#### Download Artifacts and Generate Dashboards
 
-Next step in  workflow is to get the data:
-
-```yaml
-    - name: Download artifact from triggering workflow
-      uses: actions/download-artifact@v4
-      with:
-        name: dashboarddata
-        path: output/
-        run-id: $\{\{ github.event.workflow_run.id \}\}
-        github-token: $\{\{ secrets.GITHUB_TOKEN \}\}
-```
-
-On this stage, passing `run-id` as that gives a correct "upstream" workflow id where we are downloading `dashboarddata` artifact from. The `path` is where the artifact will be downloaded to and `github-token` is needed to access the artifacts if the repository is private. And now we have both, output.xml and env.sh available for processing.
+Now to process the test output:
 
 ```yaml
-    - name: Generate Dashboard
-      run: |
-        source ./output/env.sh
-        robotdashboard \
-          -o output/output.xml \
-          -d ./db/${ENVIRONMENT}_${BROWSER}.db \
-          -g False
-
-        for db in db/*.db; do
-          x=$(basename "$db" .db)
-          robotdashboard \
-            -d ${db} \
-            -t  "Nightly on ${x}" \
-            -g True \
-            -n site/${x}.html
-        done
+{% raw %}- name: Download artifact from triggering workflow
+  uses: actions/download-artifact@v4
+  with:
+    name: dashboarddata
+    path: output/
+    run-id: ${{ github.event.workflow_run.id }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}{% endraw %}
 ```
 
-And here is where the magic happens. First we source the generated env.sh so that we have BROWSER and ENVIRONMENT env variables set.  On initial call to robotdashboard, we are importing the data from output.xml into correct sqlite database and omit html generation. This is important because *everytime* this workflow is called, I need to generate all 6 html files so that deployment wont remove existing files. And thus, second call to robotdashboard is where we generate all those html files.
-
-Next step, since we modified the sqlite database - we need to store that so that consecutive runs will always have previous data available.
+Then we generate the database and HTML reports:
 
 ```yaml
-    - name: Commit and push changes
-      run: |
-        source ./output/env.sh
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add ./db/${ENVIRONMENT}_${BROWSER}.db
-        git diff --cached --quiet || git commit -m "Processed artifact and updated files"
-        git push origin HEAD:dashboard
+{%raw %}- name: Generate Dashboard
+  run: |
+    source ./output/env.sh
+    robotdashboard \
+      -o output/output.xml \
+      -d ./db/${ENVIRONMENT}_${BROWSER}.db \
+      -g False
+
+    for db in db/*.db; do
+      x=$(basename "$db" .db)
+      robotdashboard \
+        -d ${db} \
+        -t  "Nightly on ${x}" \
+        -g True \
+        -n site/${x}.html
+    done{% endraw %}
 ```
+First, we import test results into the correct .db. Then we regenerate all HTML files every time to avoid deleting existing reports during deployment.
 
-And once again, we source the env.sh so that we know what database should have been modified. Rest of the steps are pretty standard git commands. We add the modified sqlite database and commit it. If there are no changes, we skip the commit step.
+#### Committing and Deploying
 
-And finally, we need to deploy the generated html files to github-pages:
+Next, commit and push the updated database:
 
 ```yaml
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        # Upload entire repository
-        path: site
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+{% raw %}- name: Commit and push changes
+  run: |
+    source ./output/env.sh
+    git config user.name "github-actions[bot]"
+    git config user.email "github-actions[bot]@users.noreply.github.com"
+    git add ./db/${ENVIRONMENT}_${BROWSER}.db
+    git diff --cached --quiet || git commit -m "Processed artifact and updated files"
+    git push origin HEAD:dashboard{% endraw %}
 ```
 
-`actions/upload-pages-artifacts` gets `path:` set to site/, where all 6 newly created/updated dashboard files are along with the initial index.html that acts as selector for the 6 dashboards. And then we use `actions/deploy-pages` to deploy the site to github-pages.
+And finally, deploy the updated dashboard:
+```yaml
+- name: Upload artifact
+  uses: actions/upload-pages-artifact@v3
+  with:
+    path: site
+- name: Deploy to GitHub Pages
+  id: deployment
+  uses: actions/deploy-pages@v4
+```
+#### Final Thoughts
 
+This setup gave me a clean, zero-cost solution for historical test reporting using Robot Framework and GitHub Actions. It’s not perfect, and storing .db files in the repo won’t scale forever, but it works great for now — especially for side projects or teams on a tight budget.
+
+Let me know if you’re building something similar — always curious how others solve the same problems.
 
 ---
