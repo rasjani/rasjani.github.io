@@ -68,17 +68,17 @@ This ensures the dashboard updates after any of the nightly test runs.
 To generate and publish the dashboard, we need to configure permissions and environments:
 
 ```yaml
-{% raw %}jobs:
+jobs:
   process-artifact:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: {% raw %}${{ steps.deployment.outputs.page_url }}{% endraw %}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
       pages: write
-      actions: read{% endraw %}
+      actions: read
 ```
 Next, configure the steps to check out the dashboard branch, set up Python, and install dependencies:
 
@@ -112,20 +112,20 @@ This branch contains a basic index.html and six empty SQLite files.
 Now to process the test output:
 
 ```yaml
-{% raw %}- name: Download artifact from triggering workflow
+- name: Download artifact from triggering workflow
   uses: actions/download-artifact@v4
   with:
     name: dashboarddata
     path: output/
-    run-id: ${{ github.event.workflow_run.id }}
-    github-token: ${{ secrets.GITHUB_TOKEN }}{% endraw %}
+    run-id: {% raw %}${{ github.event.workflow_run.id }}{% endraw %}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Then we generate the database and HTML reports:
 
 ```yaml
-{%raw %}- name: Generate Dashboard
-  run: |
+- name: Generate Dashboard
+  run: |{% raw %}
     source ./output/env.sh
     robotdashboard \
       -o output/output.xml \
@@ -139,7 +139,8 @@ Then we generate the database and HTML reports:
         -t  "Nightly on ${x}" \
         -g True \
         -n site/${x}.html
-    done{% endraw %}
+    done
+    {% endraw %}
 ```
 First, we import test results into the correct .db. Then we regenerate all HTML files every time to avoid deleting existing reports during deployment.
 
