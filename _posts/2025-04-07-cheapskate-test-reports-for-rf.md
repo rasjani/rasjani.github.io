@@ -27,17 +27,18 @@ With my test workflow already collecting the right artifacts, I designed a secon
 #### Passing Parameters Between Workflows
 
 I solved this by creating a simple shell script (env.sh) during the test run:
-
+```yaml
 - name: Install Dependencies & Generate env data
   run: |
     {% raw %} mkdir -p reports
     echo  export BROWSER=${{ inputs.DEFAULT_BROWSER }} > reports/env.sh
     echo  export ENVIRONMENT=${{ inputs.TEST_ENV }} >> reports/env.sh {% endraw %}
-
+```
 This stores the test parameters for the dashboard processor.
 
 Then I uploaded both the test output and the environment metadata as artifacts:
 
+```yaml
 - name: COLLECT - Dashboard data
   uses: actions/upload-artifact@v4
   with:
@@ -45,17 +46,21 @@ Then I uploaded both the test output and the environment metadata as artifacts:
     path: |
       reports/output.xml
       reports/env.sh
+```
 
 #### Creating the Dashboard Workflow
 
 Now comes the second GitHub Actions workflow, which is triggered once the test workflows complete:
 
+```yaml
+{% raw %}name: Dashboard
 name: Generate Dashboard
 on:
   workflow_run:
     workflows: ["Nightly / DEV / Chromium", "Nightly / DEV / Firefox", "Nightly / Staging / Chromium", "Nightly / Staging / Firefox", "Nightly / UAT / Chromium", "Nightly / UAT / Firefox"]
     types:
       - completed
+```
 
 This ensures the dashboard updates after any of the nightly test runs.
 #### Setup and Permissions
@@ -74,7 +79,7 @@ To generate and publish the dashboard, we need to configure permissions and envi
       id-token: write
       pages: write
       actions: read{% endraw %}
-
+```
 Next, configure the steps to check out the dashboard branch, set up Python, and install dependencies:
 
 ```yaml
